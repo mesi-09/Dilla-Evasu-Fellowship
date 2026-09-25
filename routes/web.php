@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingRequestController;
 use App\Http\Controllers\LoveSharingRequestController;
 use App\Http\Controllers\ProfileController;
@@ -33,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('counseling', CounselingRequestController::class)
         ->except(['edit'])
         ->parameters(['counseling' => 'counselingRequest']);
+
+    Route::resource('counseling-appointments', CounselingAppointmentController::class)
+        ->except(['edit'])
+        ->parameters(['counseling-appointments' => 'counselingAppointment']);
 });
 
 require __DIR__.'/auth.php';
