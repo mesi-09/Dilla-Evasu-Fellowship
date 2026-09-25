@@ -60,4 +60,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(LoveSharingRequest::class, 'assigned_leader_id');
     }
+
+    public function counselingRequests(): HasMany
+    {
+        return $this->hasMany(CounselingRequest::class, 'student_id');
+    }
+
+    public function assignedCounselingRequests(): HasMany
+    {
+        return $this->hasMany(CounselingRequest::class, 'assigned_leader_id');
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CounselingRequestController;
 use App\Http\Controllers\LoveSharingRequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('love-sharing', LoveSharingRequestController::class)
         ->except(['edit'])
         ->parameters(['love-sharing' => 'loveSharingRequest']);
+
+    Route::resource('counseling', CounselingRequestController::class)
+        ->except(['edit'])
+        ->parameters(['counseling' => 'counselingRequest']);
 });
 
 require __DIR__.'/auth.php';
