@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingRequestController;
+use App\Http\Controllers\LoveSharingMessageController;
 use App\Http\Controllers\LoveSharingRequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('love-sharing', LoveSharingRequestController::class)
         ->except(['edit'])
         ->parameters(['love-sharing' => 'loveSharingRequest']);
+
+    Route::get('love-sharing/{loveSharingRequest}/messages', [LoveSharingMessageController::class, 'index'])
+        ->name('love-sharing.messages.index');
+    Route::post('love-sharing/{loveSharingRequest}/messages', [LoveSharingMessageController::class, 'store'])
+        ->name('love-sharing.messages.store');
 
     Route::resource('counseling', CounselingRequestController::class)
         ->except(['edit'])
