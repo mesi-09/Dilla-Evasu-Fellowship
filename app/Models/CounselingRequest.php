@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CounselingRequest extends Model
 {
@@ -35,5 +36,10 @@ class CounselingRequest extends Model
     public function assignedLeader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_leader_id');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(CounselingMessage::class);
     }
 }

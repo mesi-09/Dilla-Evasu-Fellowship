@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CounselingAppointmentController;
+use App\Http\Controllers\CounselingMessageController;
 use App\Http\Controllers\CounselingRequestController;
 use App\Http\Controllers\LoveSharingMessageController;
 use App\Http\Controllers\LoveSharingRequestController;
@@ -40,6 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('counseling', CounselingRequestController::class)
         ->except(['edit'])
         ->parameters(['counseling' => 'counselingRequest']);
+
+    Route::get('counseling/{counselingRequest}/messages', [CounselingMessageController::class, 'index'])
+        ->name('counseling.messages.index');
+    Route::post('counseling/{counselingRequest}/messages', [CounselingMessageController::class, 'store'])
+        ->name('counseling.messages.store');
 
     Route::resource('counseling-appointments', CounselingAppointmentController::class)
         ->except(['edit'])
