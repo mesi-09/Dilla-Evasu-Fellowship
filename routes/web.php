@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingMessageController;
 use App\Http\Controllers\CounselingRequestController;
@@ -32,9 +33,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:main_admin'])->group(function () {
-    Route::get('/admin', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/members', [DashboardController::class, 'members'])->name('admin.members');
 
     Route::get('coworker-applications', [CoworkerApplicationController::class, 'index'])
         ->name('coworker-applications.index');
