@@ -70,4 +70,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CounselingRequest::class, 'assigned_leader_id');
     }
+
+    public function communityPosts(): HasMany
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
 }

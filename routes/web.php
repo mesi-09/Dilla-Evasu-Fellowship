@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingMessageController;
 use App\Http\Controllers\CounselingRequestController;
@@ -66,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('counseling-appointments', CounselingAppointmentController::class)
         ->except(['edit'])
         ->parameters(['counseling-appointments' => 'counselingAppointment']);
+
+    Route::get('community', [CommunityPostController::class, 'index'])->name('community.index');
+    Route::post('community', [CommunityPostController::class, 'store'])->name('community.store');
+    Route::delete('community/{communityPost}', [CommunityPostController::class, 'destroy'])->name('community.destroy');
 });
 
 require __DIR__.'/auth.php';
