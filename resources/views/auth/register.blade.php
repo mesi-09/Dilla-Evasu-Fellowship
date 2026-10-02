@@ -16,6 +16,20 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- Team -->
+        <div class="mt-4">
+            <x-input-label for="team" :value="__('Which team are you part of?')" />
+            <select id="team" name="team" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                <option value="">Select a team...</option>
+                @foreach ($teams as $team)
+                    <option value="{{ $team }}" @selected(old('team') === $team)>
+                        {{ ucfirst(str_replace('_', ' ', $team)) }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('team')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

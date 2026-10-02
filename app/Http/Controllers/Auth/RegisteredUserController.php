@@ -15,12 +15,26 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    public const TEAMS = [
+        'prayer',
+        'counseling',
+        'art',
+        'teaching_and_training',
+        'evangelism',
+        'worship',
+        'love_and_sharing',
+        'choir',
+        'found',
+        'meleket_media',
+        'none',
+    ];
+
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', ['teams' => self::TEAMS]);
     }
 
     /**
@@ -34,12 +48,14 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'team' => ['required', 'in:'.implode(',', self::TEAMS)],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'team' => $request->team,
         ]);
 
         event(new Registered($user));
