@@ -40,7 +40,49 @@
                         @endcan
                     </div>
                     <p class="mt-2">{{ $post->body }}</p>
-                    <p class="text-xs text-gray-400 mt-2">{{ $post->reactions->count() }} reactions · {{ $post->comments->count() }} comments</p>
+
+                    <div class="flex items-center gap-3 mt-3">
+                        <form method="POST" action="{{ route('community.reactions.toggle', $post) }}">
+                            @csrf
+                            @php
+                                $hasReacted = $post->reactions->contains('user_id', auth()->id());
+                            @endphp
+                            <button type="submit" class="text-sm {{ $hasReacted ? 'text-blue-600 font-semibold' : 'text-gray-500' }}">
+                                👍 {{ $post->reactions->count() }}
+                            </button>
+                        </form>
+                        <span class="text-sm text-gray-400">{{ $post->comments->count() }} comments</span>
+                    </div>
+
+                    <div class="mt-3 space-y-2 border-t pt-3">
+                        @foreach ($post->comments as $comment)
+                            <div class="flex justify-between items-start text-sm">
+                                <div>
+                                    <span class="font-medium">{{ $comment->user->name }}:</span>
+                                    {{ $comment->body }}
+                                </div>
+                                @can('delete', $comment)
+                                    <form method="POST" action="{{ route('community.comments.destroy', $comment) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-xs text-red-600 underline ml-2">Remove</button>
+                                    </form>
+                                @endcan
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <form method="POST" action="{{ route('community.comments.store', $post) }}" class="mt-3 flex gap-2">
+                        @csrf
+                        <input
+                            type="text"
+                            name="body"
+                            class="flex-1 border rounded p-2 text-sm"
+                            placeholder="Write a comment..."
+                            required
+                        >
+                        <button type="submit" class="bg-gray-200 text-sm px-3 py-2 rounded">Comment</button>
+                    </form>
                 </div>
             @empty
                 <p class="text-gray-500">No posts yet — be the first to share something.</p>

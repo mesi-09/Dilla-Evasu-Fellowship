@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\CommunityCommentController;
 use App\Http\Controllers\CommunityPostController;
+use App\Http\Controllers\CommunityReactionController;
 use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingMessageController;
 use App\Http\Controllers\CounselingRequestController;
@@ -71,6 +73,14 @@ Route::middleware('auth')->group(function () {
     Route::get('community', [CommunityPostController::class, 'index'])->name('community.index');
     Route::post('community', [CommunityPostController::class, 'store'])->name('community.store');
     Route::delete('community/{communityPost}', [CommunityPostController::class, 'destroy'])->name('community.destroy');
+
+    Route::post('community/{communityPost}/comments', [CommunityCommentController::class, 'store'])
+        ->name('community.comments.store');
+    Route::delete('community/comments/{communityComment}', [CommunityCommentController::class, 'destroy'])
+        ->name('community.comments.destroy');
+
+    Route::post('community/{communityPost}/reactions/toggle', [CommunityReactionController::class, 'toggle'])
+        ->name('community.reactions.toggle');
 });
 
 require __DIR__.'/auth.php';
