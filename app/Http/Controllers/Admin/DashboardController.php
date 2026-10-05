@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,6 +15,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $byTeam = [];
+        foreach (RegisteredUserController::TEAMS as $team) {
+            $byTeam[$team] = User::where('team', $team)->count();
+        }
+
         $stats = [
             'total_members' => User::count(),
             'active_members' => User::where('is_active', true)->count(),
@@ -23,13 +29,14 @@ class DashboardController extends Controller
                 'counseling_leader' => User::where('role', 'counseling_leader')->count(),
                 'member' => User::where('role', 'member')->count(),
             ],
+            'by_team' => $byTeam,
         ];
 
         return view('admin.dashboard', compact('stats'));
     }
 
     /**
-     * Full member directory — name, role, join date. No private
+     * Full member directory — name, role, team, join date. No private
      * request content, just account-level info.
      */
     public function members(Request $request)
@@ -43,8 +50,13 @@ class DashboardController extends Controller
             });
         }
 
-        $members = $query->paginate(20)->withQueryString();
+        if ($team = $request->query('team')) {
+            $query->where('team', $team);
+        }
 
-        return view('admin.members', compact('members'));
+        $members = $query->paginate(20)->withQueryString();
+        $teams = RegisteredUserController::TEAMS;
+
+        return view('admin.members', compact('members', 'teams'));
     }
 }

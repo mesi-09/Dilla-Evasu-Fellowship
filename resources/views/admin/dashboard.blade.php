@@ -22,6 +22,18 @@
             </div>
         </div>
 
+        <div class="bg-white rounded shadow p-4 mb-6">
+            <h2 class="font-bold mb-3">Members by Team</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                @foreach ($stats['by_team'] as $team => $count)
+                    <div class="flex justify-between border-b pb-1">
+                        <span class="text-sm text-gray-600">{{ ucfirst(str_replace('_', ' ', $team)) }}</span>
+                        <span class="font-semibold">{{ $count }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <a href="{{ route('admin.members') }}" class="inline-block bg-black text-white px-4 py-2 rounded">
             View All Members
         </a>

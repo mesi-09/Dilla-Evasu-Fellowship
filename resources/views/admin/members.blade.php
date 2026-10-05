@@ -2,14 +2,23 @@
     <div class="p-6 max-w-4xl mx-auto">
         <h1 class="text-2xl font-bold mb-4">All Members</h1>
 
-        <form method="GET" action="{{ route('admin.members') }}" class="mb-4">
+        <form method="GET" action="{{ route('admin.members') }}" class="mb-4 flex gap-2">
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search by name or email..."
-                class="border rounded p-2 w-full max-w-md"
+                class="border rounded p-2 flex-1"
             >
+            <select name="team" class="border rounded p-2">
+                <option value="">All teams</option>
+                @foreach ($teams as $team)
+                    <option value="{{ $team }}" @selected(request('team') === $team)>
+                        {{ ucfirst(str_replace('_', ' ', $team)) }}
+                    </option>
+                @endforeach
+            </select>
+            <button type="submit" class="bg-black text-white px-4 py-2 rounded">Filter</button>
         </form>
 
         <div class="bg-white rounded shadow divide-y">
@@ -22,6 +31,9 @@
                     <div class="text-right">
                         <span class="px-2 py-1 rounded text-sm bg-gray-100">
                             {{ ucfirst(str_replace('_', ' ', $member->role)) }}
+                        </span>
+                        <span class="px-2 py-1 rounded text-sm bg-blue-50 ml-1">
+                            {{ ucfirst(str_replace('_', ' ', $member->team)) }}
                         </span>
                         <p class="text-xs text-gray-400 mt-1">Joined {{ $member->created_at->format('M j, Y') }}</p>
                     </div>
