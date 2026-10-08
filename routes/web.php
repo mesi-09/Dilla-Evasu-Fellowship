@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProhibitedWordController;
 use App\Http\Controllers\CommunityCommentController;
 use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\CommunityReactionController;
@@ -45,6 +46,15 @@ Route::middleware(['auth', 'role:main_admin'])->group(function () {
         ->name('coworker-applications.show');
     Route::put('coworker-applications/{coworkerApplication}', [CoworkerApplicationController::class, 'update'])
         ->name('coworker-applications.update');
+
+    Route::get('admin/prohibited-words', [ProhibitedWordController::class, 'index'])
+        ->name('admin.prohibited-words.index');
+    Route::post('admin/prohibited-words', [ProhibitedWordController::class, 'store'])
+        ->name('admin.prohibited-words.store');
+    Route::patch('admin/prohibited-words/{prohibitedWord}/toggle', [ProhibitedWordController::class, 'toggle'])
+        ->name('admin.prohibited-words.toggle');
+    Route::delete('admin/prohibited-words/{prohibitedWord}', [ProhibitedWordController::class, 'destroy'])
+        ->name('admin.prohibited-words.destroy');
 });
 
 Route::middleware('auth')->group(function () {

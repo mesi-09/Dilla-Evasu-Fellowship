@@ -34,8 +34,13 @@
             </div>
         </div>
 
-        <a href="{{ route('admin.members') }}" class="inline-block bg-black text-white px-4 py-2 rounded">
-            View All Members
-        </a>
+        <div class="flex gap-3">
+            <a href="{{ route('admin.members') }}" class="inline-block bg-black text-white px-4 py-2 rounded">
+                View All Members
+            </a>
+            <a href="{{ route('admin.prohibited-words.index') }}" class="inline-block bg-gray-200 px-4 py-2 rounded">
+                Manage Prohibited Words
+            </a>
+        </div>
     </div>
 </x-app-layout>
