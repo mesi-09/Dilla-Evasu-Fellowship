@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\BibleMessageController as AdminBibleMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProhibitedWordController;
+use App\Http\Controllers\BibleMessageController;
 use App\Http\Controllers\CommunityCommentController;
 use App\Http\Controllers\CommunityPostController;
 use App\Http\Controllers\CommunityReactionController;
@@ -30,6 +32,12 @@ Route::post('coworker-applications', [CoworkerApplicationController::class, 'sto
 Route::get('coworker-applications/thank-you', [CoworkerApplicationController::class, 'thankYou'])
     ->name('coworker-applications.thank-you');
 
+// Public — anyone can read published Bible messages.
+Route::get('bible-messages', [BibleMessageController::class, 'index'])
+    ->name('bible-messages.index');
+Route::get('bible-messages/{bibleMessage}', [BibleMessageController::class, 'show'])
+    ->name('bible-messages.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -55,6 +63,19 @@ Route::middleware(['auth', 'role:main_admin'])->group(function () {
         ->name('admin.prohibited-words.toggle');
     Route::delete('admin/prohibited-words/{prohibitedWord}', [ProhibitedWordController::class, 'destroy'])
         ->name('admin.prohibited-words.destroy');
+
+    Route::get('admin/bible-messages', [AdminBibleMessageController::class, 'index'])
+        ->name('admin.bible-messages.index');
+    Route::get('admin/bible-messages/create', [AdminBibleMessageController::class, 'create'])
+        ->name('admin.bible-messages.create');
+    Route::post('admin/bible-messages', [AdminBibleMessageController::class, 'store'])
+        ->name('admin.bible-messages.store');
+    Route::get('admin/bible-messages/{bibleMessage}/edit', [AdminBibleMessageController::class, 'edit'])
+        ->name('admin.bible-messages.edit');
+    Route::put('admin/bible-messages/{bibleMessage}', [AdminBibleMessageController::class, 'update'])
+        ->name('admin.bible-messages.update');
+    Route::delete('admin/bible-messages/{bibleMessage}', [AdminBibleMessageController::class, 'destroy'])
+        ->name('admin.bible-messages.destroy');
 });
 
 Route::middleware('auth')->group(function () {

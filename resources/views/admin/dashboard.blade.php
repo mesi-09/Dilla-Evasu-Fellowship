@@ -34,9 +34,12 @@
             </div>
         </div>
 
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3">
             <a href="{{ route('admin.members') }}" class="inline-block bg-black text-white px-4 py-2 rounded">
                 View All Members
+            </a>
+            <a href="{{ route('admin.bible-messages.index') }}" class="inline-block bg-gray-200 px-4 py-2 rounded">
+                Bible Messages
             </a>
             <a href="{{ route('admin.prohibited-words.index') }}" class="inline-block bg-gray-200 px-4 py-2 rounded">
                 Manage Prohibited Words
