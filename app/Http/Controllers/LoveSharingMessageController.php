@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreLoveSharingMessage;
 use App\Models\LoveSharingMessage;
 use App\Models\LoveSharingRequest;
+use App\Services\NotificationService;
 
 class LoveSharingMessageController extends Controller
 {
+    public function __construct(
+        protected NotificationService $notifications
+    ) {
+    }
+
     /**
      * Show the private message thread for a given Love Sharing request.
      */
@@ -29,6 +35,8 @@ class LoveSharingMessageController extends Controller
             'sender_id' => $request->user()->id,
             'body' => $request->validated()['body'],
         ]);
+
+        $this->notifications->newMessage($loveSharingRequest, $request->user());
 
         return redirect()
             ->route('love-sharing.messages.index', $loveSharingRequest)

@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCounselingMessage;
 use App\Models\CounselingMessage;
 use App\Models\CounselingRequest;
+use App\Services\NotificationService;
 
 class CounselingMessageController extends Controller
 {
+    public function __construct(
+        protected NotificationService $notifications
+    ) {
+    }
+
     /**
      * Show the private message thread for a given Counseling request.
      */
@@ -29,6 +35,8 @@ class CounselingMessageController extends Controller
             'sender_id' => $request->user()->id,
             'body' => $request->validated()['body'],
         ]);
+
+        $this->notifications->newMessage($counselingRequest, $request->user());
 
         return redirect()
             ->route('counseling.messages.index', $counselingRequest)

@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCounselingRequest;
 use App\Models\CounselingRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class CounselingRequestController extends Controller
 {
+    public function __construct(
+        protected NotificationService $notifications
+    ) {
+    }
+
     /**
      * - Member: sees only their own requests.
      * - Counseling Leader: sees all requests.
@@ -39,6 +45,8 @@ class CounselingRequestController extends Controller
             $request->validated()
         );
 
+        $this->notifications->requestSubmitted($counselingRequest);
+
         return redirect()
             ->route('counseling.show', $counselingRequest)
             ->with('status', 'Your request was submitted successfully.');
@@ -61,6 +69,11 @@ class CounselingRequestController extends Controller
         ]);
 
         $counselingRequest->update($validated);
+
+        // Only tell the student when the status actually changed.
+        if ($counselingRequest->wasChanged('status')) {
+            $this->notifications->statusChanged($counselingRequest);
+        }
 
         return back()->with('status', 'Request updated successfully.');
     }

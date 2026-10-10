@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLoveSharingRequest;
 use App\Models\LoveSharingRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class LoveSharingRequestController extends Controller
 {
+    public function __construct(
+        protected NotificationService $notifications
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      * - Member: sees only their own requests.
@@ -46,6 +52,8 @@ class LoveSharingRequestController extends Controller
             $request->validated()
         );
 
+        $this->notifications->requestSubmitted($loveSharingRequest);
+
         return redirect()
             ->route('love-sharing.show', $loveSharingRequest)
             ->with('status', 'Your request was submitted successfully.');
@@ -74,6 +82,12 @@ class LoveSharingRequestController extends Controller
         ]);
 
         $loveSharingRequest->update($validated);
+
+        // The status form re-sends the current status every time it is saved.
+        // Only tell the student when it actually changed.
+        if ($loveSharingRequest->wasChanged('status')) {
+            $this->notifications->statusChanged($loveSharingRequest);
+        }
 
         return back()->with('status', 'Request updated successfully.');
     }

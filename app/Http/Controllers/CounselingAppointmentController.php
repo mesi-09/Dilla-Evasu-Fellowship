@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCounselingAppointment;
 use App\Models\CounselingAppointment;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class CounselingAppointmentController extends Controller
 {
+    public function __construct(
+        protected NotificationService $notifications
+    ) {
+    }
+
     /**
      * - Member: sees only their own appointments.
      * - Counseling Leader: sees all appointments.
@@ -47,6 +53,8 @@ class CounselingAppointmentController extends Controller
             ...$request->validated(),
             'counselor_id' => $request->user()->id,
         ]);
+
+        $this->notifications->appointmentScheduled($appointment);
 
         return redirect()
             ->route('counseling-appointments.show', $appointment)
