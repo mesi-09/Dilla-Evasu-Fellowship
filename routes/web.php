@@ -16,6 +16,7 @@ use App\Http\Controllers\LoveSharingRequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -111,6 +112,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('community/{communityPost}/reactions/toggle', [CommunityReactionController::class, 'toggle'])
         ->name('community.reactions.toggle');
+});
+Route::middleware('auth')->group(function () {
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
 });
 
 require __DIR__.'/auth.php';

@@ -19,6 +19,7 @@
                 <a href="{{ route('coworker-applications.create') }}" class="hover:text-stone-900">Become a Co-worker</a>
 
                 @auth
+                    <x-notification-bell />
                     <a href="{{ auth()->user()->isMainAdmin() ? route('admin.dashboard') : route('dashboard') }}"
                        class="rounded-full bg-stone-800 text-white px-4 py-1.5 hover:bg-stone-700">Dashboard</a>
                 @else
