@@ -79,7 +79,21 @@ class CounselingAppointmentController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        $before = $this->snapshot($counselingAppointment);
+
         $counselingAppointment->update($validated);
+
+        $counselingAppointment = $counselingAppointment->fresh();
+        $after = $this->snapshot($counselingAppointment);
+
+        // Only tell the student when something they care about changed.
+        // Editing the counselor's notes, or re-saving the same values, stays silent.
+        if ($before !== $after) {
+            $this->notifications->appointmentChanged(
+                $counselingAppointment,
+                statusChanged: $before['status'] !== $after['status']
+            );
+        }
 
         return back()->with('status', 'Appointment updated successfully.');
     }
@@ -93,5 +107,20 @@ class CounselingAppointmentController extends Controller
         return redirect()
             ->route('counseling-appointments.index')
             ->with('status', 'Appointment cancelled.');
+    }
+
+    /**
+     * The fields a student is told about, normalised so that "10:00" and
+     * "10:00:00" compare as equal.
+     *
+     * @return array{status: string, date: ?string, time: string}
+     */
+    protected function snapshot(CounselingAppointment $appointment): array
+    {
+        return [
+            'status' => $appointment->status,
+            'date' => $appointment->appointment_date?->toDateString(),
+            'time' => substr((string) $appointment->appointment_time, 0, 5),
+        ];
     }
 }

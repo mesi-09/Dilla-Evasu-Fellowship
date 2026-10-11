@@ -63,6 +63,22 @@ class NotificationService
             $this->path('counseling-appointments.show', $appointment)
         );
     }
+        /**
+     * Tell the student their appointment's status, date or time changed.
+     * Notes and location are never mentioned: the counselor's notes are private.
+     */
+    public function appointmentChanged(CounselingAppointment $appointment, bool $statusChanged): void
+    {
+        $message = $statusChanged
+            ? 'Your counseling appointment is now: '.ucfirst($appointment->status).'.'
+            : 'The date or time of your counseling appointment was changed.';
+
+        $this->notify(
+            $appointment->student,
+            $message,
+            $this->path('counseling-appointments.show', $appointment)
+        );
+    }
 
     /**
      * @return array{label: string, role: string, show: string, messages: string}
