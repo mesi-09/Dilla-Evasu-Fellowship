@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCoworkerApplication;
 use App\Models\CoworkerApplication;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 
 class CoworkerApplicationController extends Controller
 {
+    public function __construct(
+        protected AuditLogService $audit
+    ) {
+    }
+
     /**
      * Only Main Admin reviews applications.
      */
@@ -30,6 +36,7 @@ class CoworkerApplicationController extends Controller
 
     /**
      * Anyone (guest or logged-in student) can submit an application.
+     * Not audited: the applicant is not an administrator.
      */
     public function store(StoreCoworkerApplication $request)
     {
@@ -70,6 +77,11 @@ class CoworkerApplicationController extends Controller
             ...$validated,
             'reviewed_by' => $request->user()->id,
         ]);
+
+        // Re-saving the same status is not a decision, so it is not logged.
+        if ($coworkerApplication->wasChanged('status')) {
+            $this->audit->coworkerApplicationReviewed($request->user(), $coworkerApplication);
+        }
 
         return back()->with('status', 'Application updated.');
     }

@@ -5,9 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BibleMessageRequest;
 use App\Models\BibleMessage;
+use App\Services\AuditLogService;
 
 class BibleMessageController extends Controller
 {
+    public function __construct(
+        protected AuditLogService $audit
+    ) {
+    }
+
     public function index()
     {
         $messages = BibleMessage::orderByDesc('publish_date')
@@ -32,10 +38,12 @@ class BibleMessageController extends Controller
             $data['publish_date'] = $data['publish_date'] ?? today()->toDateString();
         }
 
-        BibleMessage::create([
+        $message = BibleMessage::create([
             ...$data,
             'created_by' => $request->user()->id,
         ]);
+
+        $this->audit->bibleMessageCreated($request->user(), $message);
 
         return redirect()
             ->route('admin.bible-messages.index')
@@ -61,14 +69,18 @@ class BibleMessageController extends Controller
 
         $bibleMessage->update($data);
 
+        $this->audit->bibleMessageUpdated($request->user(), $bibleMessage);
+
         return redirect()
             ->route('admin.bible-messages.index')
             ->with('status', 'Bible message updated.');
     }
 
-    public function destroy(BibleMessage $bibleMessage)
+       public function destroy(\Illuminate\Http\Request $request, BibleMessage $bibleMessage)
     {
         $bibleMessage->delete();
+
+        $this->audit->bibleMessageDeleted($request->user(), $bibleMessage);
 
         return redirect()
             ->route('admin.bible-messages.index')

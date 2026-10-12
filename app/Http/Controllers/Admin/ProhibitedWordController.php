@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProhibitedWord;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 
 class ProhibitedWordController extends Controller
 {
+    public function __construct(
+        protected AuditLogService $audit
+    ) {
+    }
+
     public function index()
     {
         $words = ProhibitedWord::latest()->get();
@@ -22,24 +28,30 @@ class ProhibitedWordController extends Controller
             'category' => ['required', 'in:profanity,insults,harassment,sexual,threatening,spam'],
         ]);
 
-        ProhibitedWord::create([
+        $word = ProhibitedWord::create([
             ...$validated,
             'is_active' => true,
         ]);
 
+        $this->audit->prohibitedWordAdded($request->user(), $word);
+
         return back()->with('status', 'Word added.');
     }
 
-    public function toggle(ProhibitedWord $prohibitedWord)
+    public function toggle(Request $request, ProhibitedWord $prohibitedWord)
     {
         $prohibitedWord->update(['is_active' => ! $prohibitedWord->is_active]);
+
+        $this->audit->prohibitedWordToggled($request->user(), $prohibitedWord);
 
         return back()->with('status', 'Word updated.');
     }
 
-    public function destroy(ProhibitedWord $prohibitedWord)
+    public function destroy(Request $request, ProhibitedWord $prohibitedWord)
     {
         $prohibitedWord->delete();
+
+        $this->audit->prohibitedWordRemoved($request->user(), $prohibitedWord);
 
         return back()->with('status', 'Word removed.');
     }
