@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Admin\AuditLogController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -76,6 +77,8 @@ Route::middleware(['auth', 'role:main_admin'])->group(function () {
         ->name('admin.bible-messages.update');
     Route::delete('admin/bible-messages/{bibleMessage}', [AdminBibleMessageController::class, 'destroy'])
         ->name('admin.bible-messages.destroy');
+            Route::get('admin/audit-logs', [AuditLogController::class, 'index'])
+        ->name('admin.audit-logs.index');
 });
 
 Route::middleware('auth')->group(function () {

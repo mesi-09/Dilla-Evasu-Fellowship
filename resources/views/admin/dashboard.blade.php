@@ -44,6 +44,9 @@
             <a href="{{ route('admin.prohibited-words.index') }}" class="inline-block bg-gray-200 px-4 py-2 rounded">
                 Manage Prohibited Words
             </a>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="inline-block bg-gray-200 px-4 py-2 rounded">
+                Audit Log
+            </a>
         </div>
     </div>
 </x-app-layout>
