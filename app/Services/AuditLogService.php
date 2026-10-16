@@ -60,7 +60,32 @@ class AuditLogService
 
         $this->record($actor, 'coworker_application.reviewed', "Set co-worker application #{$application->id} to {$status}.");
     }
+    public function userRoleChanged(User $actor, User $target, string $oldRole): void
+    {
+        $this->record($actor, 'user.role_changed', sprintf(
+            'Changed the role of %s (#%d) from %s to %s.',
+            $target->name,
+            $target->id,
+            $this->roleLabel($oldRole),
+            $this->roleLabel($target->role)
+        ));
+    }
 
+    public function userActiveChanged(User $actor, User $target): void
+    {
+        $activated = (bool) $target->is_active;
+
+        $this->record(
+            $actor,
+            $activated ? 'user.activated' : 'user.deactivated',
+            ($activated ? 'Activated' : 'Deactivated')." the account of {$target->name} (#{$target->id})."
+        );
+    }
+
+    protected function roleLabel(string $role): string
+    {
+        return ucfirst(str_replace('_', ' ', $role));
+    }
     protected function bibleMessageState(BibleMessage $message): string
     {
         $state = ucfirst($message->status);

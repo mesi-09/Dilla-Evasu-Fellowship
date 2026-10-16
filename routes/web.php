@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\UserManagementController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -79,6 +80,10 @@ Route::middleware(['auth', 'role:main_admin'])->group(function () {
         ->name('admin.bible-messages.destroy');
             Route::get('admin/audit-logs', [AuditLogController::class, 'index'])
         ->name('admin.audit-logs.index');
+            Route::patch('admin/users/{user}/role', [UserManagementController::class, 'updateRole'])
+        ->name('admin.users.role');
+    Route::patch('admin/users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])
+        ->name('admin.users.toggle-active');
 });
 
 Route::middleware('auth')->group(function () {
