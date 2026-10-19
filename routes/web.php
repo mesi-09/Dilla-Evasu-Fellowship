@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BibleMessageController as AdminBibleMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProhibitedWordController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BibleMessageController;
 use App\Http\Controllers\CommunityCommentController;
 use App\Http\Controllers\CommunityPostController;
@@ -11,14 +13,12 @@ use App\Http\Controllers\CounselingAppointmentController;
 use App\Http\Controllers\CounselingMessageController;
 use App\Http\Controllers\CounselingRequestController;
 use App\Http\Controllers\CoworkerApplicationController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoveSharingMessageController;
 use App\Http\Controllers\LoveSharingRequestController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Admin\AuditLogController;
-use App\Http\Controllers\Admin\UserManagementController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -30,6 +30,7 @@ Route::get('/dashboard', function () {
 Route::get('coworker-applications/apply', [CoworkerApplicationController::class, 'create'])
     ->name('coworker-applications.create');
 Route::post('coworker-applications', [CoworkerApplicationController::class, 'store'])
+    ->middleware('throttle:public-forms')
     ->name('coworker-applications.store');
 Route::get('coworker-applications/thank-you', [CoworkerApplicationController::class, 'thankYou'])
     ->name('coworker-applications.thank-you');
@@ -78,31 +79,43 @@ Route::middleware(['auth', 'role:main_admin'])->group(function () {
         ->name('admin.bible-messages.update');
     Route::delete('admin/bible-messages/{bibleMessage}', [AdminBibleMessageController::class, 'destroy'])
         ->name('admin.bible-messages.destroy');
-            Route::get('admin/audit-logs', [AuditLogController::class, 'index'])
+
+    Route::get('admin/audit-logs', [AuditLogController::class, 'index'])
         ->name('admin.audit-logs.index');
-            Route::patch('admin/users/{user}/role', [UserManagementController::class, 'updateRole'])
+
+    Route::patch('admin/users/{user}/role', [UserManagementController::class, 'updateRole'])
         ->name('admin.users.role');
     Route::patch('admin/users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])
         ->name('admin.users.toggle-active');
 });
 
 Route::middleware('auth')->group(function () {
+    // Love Sharing. "store" is declared by hand so it can carry a limit.
+    Route::post('love-sharing', [LoveSharingRequestController::class, 'store'])
+        ->middleware('throttle:submit-request')
+        ->name('love-sharing.store');
     Route::resource('love-sharing', LoveSharingRequestController::class)
-        ->except(['edit'])
+        ->except(['edit', 'store'])
         ->parameters(['love-sharing' => 'loveSharingRequest']);
 
     Route::get('love-sharing/{loveSharingRequest}/messages', [LoveSharingMessageController::class, 'index'])
         ->name('love-sharing.messages.index');
     Route::post('love-sharing/{loveSharingRequest}/messages', [LoveSharingMessageController::class, 'store'])
+        ->middleware('throttle:chat')
         ->name('love-sharing.messages.store');
 
+    // Counseling. Same arrangement.
+    Route::post('counseling', [CounselingRequestController::class, 'store'])
+        ->middleware('throttle:submit-request')
+        ->name('counseling.store');
     Route::resource('counseling', CounselingRequestController::class)
-        ->except(['edit'])
+        ->except(['edit', 'store'])
         ->parameters(['counseling' => 'counselingRequest']);
 
     Route::get('counseling/{counselingRequest}/messages', [CounselingMessageController::class, 'index'])
         ->name('counseling.messages.index');
     Route::post('counseling/{counselingRequest}/messages', [CounselingMessageController::class, 'store'])
+        ->middleware('throttle:chat')
         ->name('counseling.messages.store');
 
     Route::resource('counseling-appointments', CounselingAppointmentController::class)
@@ -110,17 +123,22 @@ Route::middleware('auth')->group(function () {
         ->parameters(['counseling-appointments' => 'counselingAppointment']);
 
     Route::get('community', [CommunityPostController::class, 'index'])->name('community.index');
-    Route::post('community', [CommunityPostController::class, 'store'])->name('community.store');
+    Route::post('community', [CommunityPostController::class, 'store'])
+        ->middleware('throttle:community-write')
+        ->name('community.store');
     Route::delete('community/{communityPost}', [CommunityPostController::class, 'destroy'])->name('community.destroy');
 
     Route::post('community/{communityPost}/comments', [CommunityCommentController::class, 'store'])
+        ->middleware('throttle:community-write')
         ->name('community.comments.store');
     Route::delete('community/comments/{communityComment}', [CommunityCommentController::class, 'destroy'])
         ->name('community.comments.destroy');
 
     Route::post('community/{communityPost}/reactions/toggle', [CommunityReactionController::class, 'toggle'])
+        ->middleware('throttle:reactions')
         ->name('community.reactions.toggle');
 });
+
 Route::middleware('auth')->group(function () {
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
