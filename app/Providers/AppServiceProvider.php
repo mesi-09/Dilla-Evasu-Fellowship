@@ -46,5 +46,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('chat', fn (Request $request) => Limit::perMinute(20)->by($who($request)));
         RateLimiter::for('community-write', fn (Request $request) => Limit::perMinute(10)->by($who($request)));
         RateLimiter::for('reactions', fn (Request $request) => Limit::perMinute(60)->by($who($request)));
+        RateLimiter::for('registrations', fn (Request $request) => Limit::perHour(20)->by($request->ip()));
     }
 }
