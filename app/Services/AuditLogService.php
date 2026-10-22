@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\BibleMessage;
 use App\Models\CoworkerApplication;
@@ -15,7 +16,8 @@ use Illuminate\Support\Str;
  * Privacy rule: an entry says WHAT an admin did, never the content of a
  * private request or an applicant's personal details. Each sentence is built
  * here from fixed text plus identifiers the admin themselves manage (a
- * prohibited word, a Bible message title), and no method accepts free text.
+ * prohibited word, a Bible message or announcement title), and no method
+ * accepts free text.
  */
 class AuditLogService
 {
@@ -51,6 +53,21 @@ class AuditLogService
         $this->record($actor, 'bible_message.deleted', "Deleted Bible message \"{$message->title}\".");
     }
 
+    public function announcementCreated(User $actor, Announcement $announcement): void
+    {
+        $this->record($actor, 'announcement.created', "Created announcement \"{$announcement->title}\" ({$this->announcementState($announcement)}).");
+    }
+
+    public function announcementUpdated(User $actor, Announcement $announcement): void
+    {
+        $this->record($actor, 'announcement.updated', "Updated announcement \"{$announcement->title}\" ({$this->announcementState($announcement)}).");
+    }
+
+    public function announcementDeleted(User $actor, Announcement $announcement): void
+    {
+        $this->record($actor, 'announcement.deleted', "Deleted announcement \"{$announcement->title}\".");
+    }
+
     /**
      * Logged by id only: the applicant's name, phone and email stay out.
      */
@@ -60,6 +77,7 @@ class AuditLogService
 
         $this->record($actor, 'coworker_application.reviewed', "Set co-worker application #{$application->id} to {$status}.");
     }
+
     public function userRoleChanged(User $actor, User $target, string $oldRole): void
     {
         $this->record($actor, 'user.role_changed', sprintf(
@@ -86,6 +104,7 @@ class AuditLogService
     {
         return ucfirst(str_replace('_', ' ', $role));
     }
+
     protected function bibleMessageState(BibleMessage $message): string
     {
         $state = ucfirst($message->status);
@@ -95,6 +114,13 @@ class AuditLogService
         }
 
         return $state;
+    }
+
+    protected function announcementState(Announcement $announcement): string
+    {
+        $state = ucfirst($announcement->status);
+
+        return $announcement->is_important ? "{$state}, important" : $state;
     }
 
     protected function record(User $actor, string $action, string $description): void
@@ -107,4 +133,3 @@ class AuditLogService
         ]);
     }
 }
-
